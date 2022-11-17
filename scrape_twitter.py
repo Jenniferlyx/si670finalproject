@@ -14,6 +14,9 @@ class TweetCollector(object):
     api = tweepy.API(auth)
 
     hashtags = [
+        '#ftx',
+        '#vegan',
+        '#lgbtq'
         '#nft',
         '#climatechange',
         '#christmas',
@@ -44,7 +47,7 @@ class TweetCollector(object):
             geo = tweet.user.location
             retweet_count = tweet.retweet_count
             like_count = tweet.favorite_count
-            hashtags = tweet.entities['hashtags']
+            hash_text = tag
             username = tweet.user.screen_name
             following = tweet.user.friends_count
             followers = tweet.user.followers_count
@@ -54,9 +57,6 @@ class TweetCollector(object):
                 text = tweet.retweeted_status.full_text
             except AttributeError:
                 text = tweet.full_text
-            hash_text = []
-            for j in range(len(hashtags)):
-                hash_text.append(hashtags[j]['text'])
 
             ith_tweet = [tweet_id, text, create_at, geo,
                         retweet_count, like_count, hash_text,
@@ -85,7 +85,7 @@ class TweetCollector(object):
                 print(datetime.datetime.now(), ":sleep for 15 minutes")
                 time.sleep(15*60)
             self.get_tweets(self.hashtags[i], self.end_date, df)
-        filename = 'si670finalproject/data/scraped_tweets-' + str(self.start_date) + '-' + str(self.end_date) + '.csv'
+        filename = 'data/scraped_tweets-' + str(self.start_date) + '-' + str(self.end_date) + '.csv'
         df.set_index(['id']).to_csv(filename)
 
 if __name__ == "__main__":
