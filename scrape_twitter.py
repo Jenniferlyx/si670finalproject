@@ -16,8 +16,7 @@ class TweetCollector(object):
     hashtags = [
         '#ftx',
         '#vegan',
-        '#lgbtq'
-        '#nft',
+        '#lgbtq',
         '#climatechange',
         '#christmas',
         '#covid',
