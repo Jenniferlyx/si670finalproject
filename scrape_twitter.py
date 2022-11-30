@@ -16,7 +16,7 @@ class TweetCollector(object):
     hashtags = [
         '#ftx',
         '#vegan',
-        '#lgbtq',
+        # '#lgbtq',
         '#climatechange',
         '#christmas',
         '#covid',
@@ -84,7 +84,7 @@ class TweetCollector(object):
                 print(datetime.datetime.now(), ":sleep for 15 minutes")
                 time.sleep(15*60)
             self.get_tweets(self.hashtags[i], self.end_date, df)
-        filename = 'data/scraped_tweets-' + str(self.start_date) + '-' + str(self.end_date) + '.csv'
+        filename = 'data/raw/scraped_tweets-' + str(self.start_date) + '-' + str(self.end_date) + '.csv'
         df.set_index(['id']).to_csv(filename)
 
 if __name__ == "__main__":
