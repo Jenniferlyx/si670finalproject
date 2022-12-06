@@ -169,7 +169,7 @@ if __name__=="__main__":
         df_2class.loc[len(df_2class)] = tmp
     df_2class['fraction'] = fractions
     df_2class['thresholds'] = thresholds
-    df_2class.loc[len(df_2class)] = [0, 0, 0, 0, base, 0, 0]
+    df_2class.loc[len(df_2class)] = [0, 0, 0, 0, base, 0, "baseline"]
     print(df_2class)
     df_2class.to_csv('result/2class_{}.csv'.format(args.goal), index=False)
 
@@ -184,5 +184,6 @@ if __name__=="__main__":
         df_3class.loc[len(df_3class)] = tmp
     df_3class['fraction'] = fractions
     df_3class['thresholds'] = thresholds
+    df_3class.loc[len(df_3class)] = [0, 0, 0, 0, base, 0, "baseline"]
     print(df_3class)
     df_3class.to_csv('result/3class_{}.csv'.format(args.goal), index=False)
