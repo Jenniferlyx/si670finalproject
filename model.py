@@ -53,10 +53,7 @@ def prepare():
     data['text_length'] = data['text'].str.len()
     y_log = []
     for x in data['{}_count'.format(args.goal)].tolist():
-        if x == 0:
-            y_log.append(x)
-        else:
-            y_log.append(np.log(x))
+        y_log.append(np.log(x + 1))
     data['{}_count(log)'.format(args.goal)] = y_log
     return data
 
@@ -106,7 +103,7 @@ def categorize_data(data, t):
 
 def classify(X_train_scaled, X_test_scaled, y_label_train, y_label_test, num_class):
     # train classifier
-    clf = RandomForestClassifier(random_state=seed)
+    clf = RandomForestClassifier(random_state=seed, max_depth=10)
     clf.fit(X_train_scaled, y_label_train)
     pred_class = clf.predict(X_test_scaled)
     acc = accuracy_score(pred_class, y_label_test)
@@ -137,7 +134,7 @@ def algo(data, num_class):
         X_train_class = X_train.loc[idx_class]
         X_train_class_scaled = StandardScaler().fit_transform(X_train_class)
         y_train_log_class = data.loc[idx_class]['{}_count(log)'.format(args.goal)]
-        rf = RandomForestRegressor(random_state=seed)
+        rf = RandomForestRegressor(random_state=seed, max_depth=10)
         rf.fit(X_train_class_scaled, y_train_log_class)
         rfs.append(rf)
 
@@ -160,7 +157,8 @@ if __name__=="__main__":
     base = baseline(data)
     print("="*25 + "2 class" + "="*25)
     df_2class = pd.DataFrame(columns=['acc', 'precision', 'recall', 'f1', 'mse'])
-    thresholds =  [[0], [1], [5], [10], [20], [50], [100], [300], [500], [800], [1000]]
+    # thresholds =  [[0], [1], [2], [3], [5], [10], [20], [50], [100], [800]] # like
+    thresholds =  [[0], [1], [5], [10], [50], [100], [500], [1000], [5000], [10000]] # retweet
     fractions = []
     for t in tqdm(thresholds):
         data_tranformed, frac = categorize_data(data.copy(), t)
@@ -175,7 +173,8 @@ if __name__=="__main__":
 
     print("="*25 + "3 class" + "="*25)
     df_3class = pd.DataFrame(columns=['acc', 'precision', 'recall', 'f1', 'mse'])
-    thresholds =  [(0, 5), (5, 50), (10, 100), (20, 200), (50, 500), (100, 500), (300, 1000), (500, 1000), (800, 2000), (1000, 5000)]
+    # thresholds =  [(0, 1), (0, 2), (0, 3), (0, 4), (1, 4), (1, 5), (5, 50), (10, 100), (100, 500)] # like
+    thresholds =  [(5, 50), (10, 100), (20, 200), (50, 500), (100, 1000), (500, 1000), (1000, 2000), (1000, 5000), (1000, 10000)] # retweet
     fractions = []
     for t in tqdm(thresholds):
         data_tranformed, frac = categorize_data(data.copy(), t)
@@ -187,3 +186,19 @@ if __name__=="__main__":
     df_3class.loc[len(df_3class)] = [0, 0, 0, 0, base, 0, "baseline"]
     print(df_3class)
     df_3class.to_csv('result/3class_{}.csv'.format(args.goal), index=False)
+
+    print("="*25 + "4 class" + "="*25)
+    df_4class = pd.DataFrame(columns=['acc', 'precision', 'recall', 'f1', 'mse'])
+    # thresholds =  [(0, 1, 2), (0, 1, 4), (1, 2, 4), (5, 10, 500)] # like
+    thresholds =  [(1, 10, 100), (10, 100, 1000), (50, 500, 5000), (100, 1000, 10000)] # retweet
+    fractions = []
+    for t in tqdm(thresholds):
+        data_tranformed, frac = categorize_data(data.copy(), t)
+        fractions.append(frac)
+        tmp = algo(data_tranformed, len(thresholds[0]) + 1)
+        df_4class.loc[len(df_4class)] = tmp
+    df_4class['fraction'] = fractions
+    df_4class['thresholds'] = thresholds
+    df_4class.loc[len(df_3class)] = [0, 0, 0, 0, base, 0, "baseline"]
+    print(df_4class)
+    df_4class.to_csv('result/4class_{}.csv'.format(args.goal), index=False)
